@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Table Order - Dream Furniture</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+    <style>
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                        url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=400&fit=crop') center/cover;
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+        }
+        .price-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .option-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .option-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        .color-option {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 5px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .color-option.selected {
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+        .color-jungle-teak {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+        }
+        .color-white {
+            background: #ffffff;
+            border: 1px solid #ddd !important;
+        }
+        .color-black {
+            background: #000000;
+        }
+        .color-american-white {
+            background: linear-gradient(135deg, #F5F5DC 0%, #FFFACD 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">🪑 Dream Furniture</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="custom-table.html">Custom Table</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="cart.html">Cart <span id="cart-count" class="badge bg-danger">0</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="orders.html">Orders</a>
+                    </li>
+                    <li class="nav-item" id="user-nav">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">Design Your Custom Table</h1>
+            <p class="lead">Create the perfect table tailored to your specifications</p>
+        </div>
+    </section>
+
+    <!-- Custom Table Form -->
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h3 class="card-title mb-4">Custom Table Configuration</h3>
+                        
+                        <form id="custom-table-form">
+                            <!-- Customer Details -->
+                            <div class="option-card">
+                                <h5 class="mb-3">📋 Customer Details</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Full Name *</label>
+                                        <input type="text" class="form-control" id="customer-name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Contact Number *</label>
+                                        <input type="tel" class="form-control" id="customer-contact" required>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Address *</label>
+                                        <textarea class="form-control" id="customer-address" rows="2" required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table Size -->
+                            <div class="option-card">
+                                <h5 class="mb-3">📏 Table Size</h5>
+                                <select class="form-select" id="table-size" required>
+                                    <option value="">Select Size</option>
+                                    <option value="2x2.5" data-price="15000">2ft x 2.5ft - Rs 15,000</option>
+                                    <option value="2x3" data-price="18000">2ft x 3ft - Rs 18,000</option>
+                                    <option value="2x4" data-price="22000">2ft x 4ft - Rs 22,000</option>
+                                    <option value="2x5" data-price="26000">2ft x 5ft - Rs 26,000</option>
+                                    <option value="2x6" data-price="30000">2ft x 6ft - Rs 30,000</option>
+                                    <option value="2x7" data-price="34000">2ft x 7ft - Rs 34,000</option>
+                                    <option value="2x8" data-price="38000">2ft x 8ft - Rs 38,000</option>
+                                </select>
+                            </div>
+
+                            <!-- Table Top Color -->
+                            <div class="option-card">
+                                <h5 class="mb-3">🎨 Table Top Color</h5>
+                                <div class="d-flex flex-wrap">
+                                    <div class="text-center me-3">
+                                        <div class="color-option color-jungle-teak" data-color="jungle-teak" title="Jungle Teak"></div>
+                                        <small>Jungle Teak</small>
+                                    </div>
+                                    <div class="text-center me-3">
+                                        <div class="color-option color-white" data-color="white" title="White"></div>
+                                        <small>White</small>
+                                    </div>
+                                    <div class="text-center me-3">
+                                        <div class="color-option color-black" data-color="black" title="Black"></div>
+                                        <small>Black</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="color-option color-american-white" data-color="american-white" title="American White"></div>
+                                        <small>American White</small>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="table-top-color" required>
+                            </div>
+
+                            <!-- Table Leg Color -->
+                            <div class="option-card">
+                                <h5 class="mb-3">🦿 Table Leg Color</h5>
+                                <div class="d-flex flex-wrap">
+                                    <div class="text-center me-3">
+                                        <div class="color-option color-black" data-leg-color="black" title="Black"></div>
+                                        <small>Black</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="color-option color-white" data-leg-color="white" title="White"></div>
+                                        <small>White</small>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="table-leg-color" required>
+                            </div>
+
+                            <!-- Wire Holes -->
+                            <div class="option-card">
+                                <h5 class="mb-3">🔌 Wire Holes</h5>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="wire-holes" id="wire-yes" value="yes">
+                                    <label class="form-check-label" for="wire-yes">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="wire-holes" id="wire-no" value="no" checked>
+                                    <label class="form-check-label" for="wire-no">No</label>
+                                </div>
+                            </div>
+
+                            <!-- Front Cover -->
+                            <div class="option-card">
+                                <h5 class="mb-3">📦 Front Cover</h5>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="front-cover" id="cover-no" value="no" checked>
+                                    <label class="form-check-label" for="cover-no">No Front Cover</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="front-cover" id="cover-6" value="6" data-price="250">
+                                    <label class="form-check-label" for="cover-6">6 inch - Rs 250</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="front-cover" id="cover-12" value="12" data-price="500">
+                                    <label class="form-check-label" for="cover-12">12 inch - Rs 500</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="front-cover" id="cover-16" value="16" data-price="750">
+                                    <label class="form-check-label" for="cover-16">16 inch - Rs 750</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="front-cover" id="cover-24" value="24" data-price="1000">
+                                    <label class="form-check-label" for="cover-24">24 inch - Rs 1,000</label>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Type -->
+                            <div class="option-card">
+                                <h5 class="mb-3">🚚 Delivery Type</h5>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="delivery-type" id="delivery-colombo" value="colombo" data-price="2000" checked>
+                                    <label class="form-check-label" for="delivery-colombo">Courier Delivery - Colombo District (Rs 2,000)</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="delivery-type" id="delivery-other" value="other-district" data-price="4000">
+                                    <label class="form-check-label" for="delivery-other">Courier Delivery - Other Districts (Rs 4,000)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="delivery-type" id="delivery-pickup" value="factory-pickup" data-price="0">
+                                    <label class="form-check-label" for="delivery-pickup">Factory Pickup (Free)</label>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="option-card">
+                                <h5 class="mb-3">📝 Additional Description</h5>
+                                <textarea class="form-control" id="description" rows="4" placeholder="Any special requirements or notes..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-check-circle"></i> Confirm Custom Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Summary -->
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">💰 Price Summary</h5>
+                            
+                            <div class="price-display">
+                                Total: Rs <span id="total-price">0</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Base Price:</span>
+                                    <strong>Rs <span id="base-price">0</span></strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Front Cover:</span>
+                                    <strong>Rs <span id="cover-price">0</span></strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Delivery:</span>
+                                    <strong>Rs <span id="delivery-price">2,000</span></strong>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total:</strong>
+                                    <strong class="text-primary">Rs <span id="final-price">2,000</span></strong>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info mb-0">
+                                <small>
+                                    <strong>Selected Configuration:</strong>
+                                    <div id="config-summary" class="mt-2">
+                                        <em>Select options to see your configuration</em>
+                                    </div>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2024 Dream Furniture. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/custom-table.js"></script>
+</body>
+</html>

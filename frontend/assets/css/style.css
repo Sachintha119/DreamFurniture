@@ -1,0 +1,192 @@
+/* Main CSS for FurniStyle */
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --danger-color: #e74c3c;
+    --success-color: #27ae60;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    padding: 80px 0;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+/* Cards */
+.card {
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+
+.card img {
+    height: 250px;
+    object-fit: cover;
+}
+
+/* Features */
+.feature-icon {
+    font-size: 3rem;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+/* Product Grid */
+.product-card {
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+/* Cart */
+.cart-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 15px 0;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.qty-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.qty-control button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+}
+
+.qty-control input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Order Status */
+.order-status {
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.status-pending {
+    background-color: #ffeaa7;
+    color: #d63031;
+}
+
+.status-processing {
+    background-color: #74b9ff;
+    color: #0984e3;
+}
+
+.status-shipped {
+    background-color: #81ecec;
+    color: #00b894;
+}
+
+.status-delivered {
+    background-color: #55efc4;
+    color: #00b894;
+}
+
+.status-cancelled {
+    background-color: #fab1a0;
+    color: #e17055;
+}
+
+/* Footer */
+footer {
+    margin-top: 50px;
+    border-top: 1px solid #ddd;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .card img {
+        height: 200px;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-card {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Input Styling */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Table styling */
+.table {
+    background-color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f5f5f5;
+}

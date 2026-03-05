@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Dream Furniture</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="../index.html">🪑 Dream Furniture</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="custom-table.html">Custom Table</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cart.html">Cart <span id="cart-count" class="badge bg-danger">0</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="orders.html">Orders</a></li>
+                    <li class="nav-item" id="auth-nav">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="text-white text-center py-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&h=400&fit=crop'); background-size: cover; background-position: center; min-height: 300px; display: flex; align-items: center; justify-content: center;">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-2">My Profile</h1>
+            <p class="lead">Manage your account and preferences</p>
+        </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-dark text-white">
+                            <h3 class="mb-0 fw-bold">Account Settings</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Profile Avatar -->
+                            <div class="text-center mb-4">
+                                <img id="profile-avatar" src="https://via.placeholder.com/150" alt="Profile" class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover; border: 3px solid #007bff; aspect-ratio: 1/1;">
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#photoSection">Change Photo</button>
+                                </div>
+                            </div>
+
+                            <!-- Change Photo Section -->
+                            <div class="collapse mb-4" id="photoSection">
+                                <div class="card card-body">
+                                    <label class="form-label mb-3">Upload New Photo</label>
+                                    
+                                    <!-- Drag and Drop Zone -->
+                                    <div class="border-2 border-dashed rounded p-4 mb-3 text-center" id="drop-zone" style="border-color: #dee2e6; cursor: pointer; transition: all 0.3s;">
+                                        <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+                                        <div id="drop-zone-text">
+                                            <p class="mb-2">📁 <strong>Drop image here or click to browse</strong></p>
+                                            <p class="text-muted small">Supported formats: JPG, PNG, GIF, WebP</p>
+                                        </div>
+                                        <div id="upload-progress" style="display: none;">
+                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                                <span class="visually-hidden">Uploading...</span>
+                                            </div>
+                                            <span>Processing image...</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Or Use URL -->
+                                    <div class="accordion mb-3" id="urlOption">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#urlInput">
+                                                    Or paste image URL instead
+                                                </button>
+                                            </h2>
+                                            <div id="urlInput" class="accordion-collapse collapse" data-bs-parent="#urlOption">
+                                                <div class="accordion-body p-3">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="new-photo" placeholder="https://example.com/photo.jpg">
+                                                        <button class="btn btn-primary" type="button" onclick="updatePhotoFromURL()">Update Photo</button>
+                                                    </div>
+                                                    <small class="text-muted">Paste a direct image URL</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Profile Form -->
+                            <form id="profile-form">
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="profile-name" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="profile-email" disabled>
+                                    <small class="text-muted">Email cannot be changed</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" id="profile-phone" placeholder="+1 (555) 123-4567">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="profile-address" placeholder="123 Main Street">
+                                </div>
+
+                                <hr>
+
+                                <h5 class="mb-3">Change Password</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" id="current-password" placeholder="Enter current password">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" id="new-password" placeholder="Enter new password (leave blank to keep current)">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirm-password" placeholder="Confirm new password">
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+                                    <a href="products.html" class="btn btn-outline-secondary">Back to Shopping</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="card card-danger mt-4">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">Danger Zone</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Delete your account permanently. This action cannot be undone.</p>
+                            <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p>&copy; 2026 Dream Furniture. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/profile.js"></script>
+</body>
+</html>

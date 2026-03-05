@@ -1,0 +1,10 @@
+1|Modern Dining Table|table|45000|Sleek modern dining table with glass top and wooden legs|15|https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=500&h=500&fit=crop|1740000000000
+2|Executive Desk|table|68000|Premium wood desk for home office with storage|10|https://images.unsplash.com/photo-1593642632400-2682810df593?w=500&h=500&fit=crop|1740000000000
+3|Coffee Table|table|22000|Minimalist coffee table with metal legs|20|https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=500&fit=crop|1740000000000
+4|Conference Table|table|90000|Large conference table for meetings|8|https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500&h=500&fit=crop|1740000000000
+5|Side Table|table|13500|Modern side table for living room|25|https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=500&h=500&fit=crop|1740000000000
+6|Leather Office Chair|chair|30000|Ergonomic leather chair with lumbar support|12|https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&h=500&fit=crop|1740000000000
+7|Dining Chair Set|chair|19500|Set of 4 modern dining chairs in various colors|18|https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=500&fit=crop|1740000000000
+8|Lounge Chair|chair|37500|Comfortable lounge chair with ottoman|14|https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&h=500&fit=crop|1740000000000
+9|Gaming Chair|chair|27000|High-back gaming chair with adjustable features|22|https://images.unsplash.com/photo-1598882017221-7a3d3f48e4ca?w=500&h=500&fit=crop|1740000000000
+10|Executive Manager Chair|chair|52500|Premium manager chair with leather finish|9|https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&h=500&fit=crop|1740000000000

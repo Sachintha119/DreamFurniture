@@ -1,0 +1,3 @@
+# Sample orders file format
+# OrderID|CustomerName|Email|Phone|Address|City|ZipCode|Total|Status|OrderDate
+# This file will be auto-populated when orders are created

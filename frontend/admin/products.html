@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar bg-dark text-white p-3" style="width: 250px; min-height: 100vh;">
+            <h4 class="mb-4">🪑 Admin Panel</h4>
+            <nav class="nav flex-column">
+                <a class="nav-link text-white" href="dashboard.html">📊 Dashboard</a>
+                <a class="nav-link text-white active" href="products.html">📦 Products</a>
+                <a class="nav-link text-white" href="orders.html">🛒 Orders</a>
+                <a class="nav-link text-white" href="users.html">👥 Users</a>
+                <a class="nav-link text-white" href="reports.html">📈 Reports</a>
+                <a class="nav-link text-white" href="settings.html">⚙️ Settings</a>
+                <hr class="text-white">
+                <a class="nav-link text-danger" href="#" onclick="logout()">🚪 Logout</a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            <nav class="navbar navbar-light bg-light border-bottom">
+                <div class="container-fluid">
+                    <span class="navbar-brand mb-0 h1">Product Management</span>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h4>All Products</h4>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">+ Add New Product</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table">
+                                    <!-- Products loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-product-form">
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="product-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="product-category" required>
+                                <option value="table">Table</option>
+                                <option value="chair">Chair</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price (Rs)</label>
+                            <input type="number" class="form-control" id="product-price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-control" id="product-stock" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="product-description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <div class="mb-2">
+                                <label class="form-check-label">
+                                    <input type="radio" name="image-type" value="url" checked class="form-check-input" onchange="toggleImageInput(this.value)"> Image URL
+                                </label>
+                                <label class="form-check-label ms-3">
+                                    <input type="radio" name="image-type" value="upload" class="form-check-input" onchange="toggleImageInput(this.value)"> Upload Image
+                                </label>
+                            </div>
+                            <input type="text" class="form-control" id="product-image" placeholder="https://example.com/image.jpg">
+                            <input type="file" class="form-control d-none" id="product-image-file" accept="image/*">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addProduct()">Add Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="edit-product-id">
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="edit-product-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="edit-product-category" required>
+                                <option value="table">Table</option>
+                                <option value="chair">Chair</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price (Rs)</label>
+                            <input type="number" class="form-control" id="edit-product-price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Stock Quantity</label>
+                            <input type="number" class="form-control" id="edit-product-stock" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="edit-product-description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <div class="mb-2">
+                                <label class="form-check-label">
+                                    <input type="radio" name="edit-image-type" value="url" checked class="form-check-input" onchange="toggleEditImageInput(this.value)"> Image URL
+                                </label>
+                                <label class="form-check-label ms-3">
+                                    <input type="radio" name="edit-image-type" value="upload" class="form-check-input" onchange="toggleEditImageInput(this.value)"> Upload Image
+                                </label>
+                            </div>
+                            <input type="text" class="form-control" id="edit-product-image-url" placeholder="https://example.com/image.jpg">
+                            <input type="file" class="form-control d-none" id="edit-product-image-file" accept="image/*">
+                            <div id="edit-current-image" class="mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProductEdit()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        checkAuth();
+        loadProducts();
+
+        function toggleImageInput(type) {
+            const urlInput = document.getElementById('product-image');
+            const fileInput = document.getElementById('product-image-file');
+            if (type === 'url') {
+                urlInput.classList.remove('d-none');
+                fileInput.classList.add('d-none');
+            } else {
+                urlInput.classList.add('d-none');
+                fileInput.classList.remove('d-none');
+            }
+        }
+
+        function toggleEditImageInput(type) {
+            const urlInput = document.getElementById('edit-product-image-url');
+            const fileInput = document.getElementById('edit-product-image-file');
+            if (type === 'url') {
+                urlInput.classList.remove('d-none');
+                fileInput.classList.add('d-none');
+            } else {
+                urlInput.classList.add('d-none');
+                fileInput.classList.remove('d-none');
+            }
+        }
+    </script>
+</body>
+</html>
