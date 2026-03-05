@@ -2,7 +2,7 @@
 
 ## ✅ How It Should Work
 
-1. **Register User** → `/pages/login.html` 
+1. **Register User** → `/pages/login.html`
 2. **Data saved** → Browser's localStorage
 3. **Go to Admin** → `/admin/users.html`
 4. **See User** → User appears in admin panel
@@ -14,17 +14,20 @@
 ### **Solution Checklist:**
 
 #### **1. SAME BROWSER WINDOW** ✅ REQUIRED
+
 - Register at: `http://localhost:3000/pages/login.html`
 - Admin panel at: `http://localhost:3000/admin/users.html`
 - **❌ DON'T use different browsers** (Chrome vs Edge, etc)
 - **❌ DON'T use incognito mode** (separate localStorage)
 
 #### **2. REFRESH ADMIN PAGE**
+
 - Click **🔄 Refresh** button on Users page
 - OR press `F5` or `Ctrl+R`
 - **Why?** Admin page needs to re-read localStorage
 
 #### **3. CHECK BROWSER DEVELOPER CONSOLE**
+
 - Press `F12` to open Developer Tools
 - Go to **Console** tab
 - Look for message like:
@@ -36,6 +39,7 @@
   ```
 
 #### **4. CHECK localStorage DIRECTLY**
+
 - Press `F12` to open Developer Tools
 - Go to **Application** tab → **Local Storage** → `http://localhost:3000`
 - Look for `users` key
@@ -49,6 +53,7 @@
 ## 🔍 Step-by-Step Verification
 
 ### **Step 1: Register a User**
+
 ```
 1. Open: http://localhost:3000/pages/login.html
 2. Click "Create new account"
@@ -62,15 +67,17 @@
 ```
 
 ### **Step 2: Check localStorage via Console**
+
 ```javascript
 // Open F12 → Console, paste:
-localStorage.getItem('users')
+localStorage.getItem("users");
 
 // Should output:
 // [{"id":1234567890,"name":"TestUser","email":"test@example.com",...}]
 ```
 
 ### **Step 3: Go to Admin Panel**
+
 ```
 1. Open: http://localhost:3000/admin/login.html
 2. Login with: admin / admin123
@@ -79,6 +86,7 @@ localStorage.getItem('users')
 ```
 
 ### **Step 4: If Still Not Showing**
+
 - Click **🔄 Refresh** button
 - Check console for debug logs
 - Look at "All Users (1)" - number should match
@@ -92,6 +100,7 @@ localStorage.getItem('users')
 **Cause:** Data saved in different browser instance
 
 **Fix:**
+
 - Close **ALL** browser windows
 - Restart browser
 - Go to `http://localhost:3000/pages/login.html`
@@ -100,9 +109,11 @@ localStorage.getItem('users')
 - Go to `/admin/users.html` in **same window**
 
 ### **Issue 2: Registered But Can't Log In**
+
 **Cause:** Password not matching
 
 **Fix:**
+
 - Remember the **exact password** you registered with
 - Case-sensitive!
 - Try registering again with simpler password: `admin123`
@@ -110,9 +121,10 @@ localStorage.getItem('users')
 ### **Issue 3: Admin Page Shows Empty Even After Refresh**
 
 **Fix - Check localStorage:**
+
 ```javascript
 // Paste in console (F12 → Console):
-JSON.parse(localStorage.getItem('users'))
+JSON.parse(localStorage.getItem("users"));
 
 // If output is:
 // null OR []
@@ -124,6 +136,7 @@ JSON.parse(localStorage.getItem('users'))
 **Cause:** Each browser window has separate localStorage!
 
 **Fix:**
+
 ```
 ❌ WRONG:
 - Window 1: Register user in Pages/login.html
@@ -140,6 +153,7 @@ JSON.parse(localStorage.getItem('users'))
 **Cause:** Private browsing has separate storage
 
 **Fix:**
+
 - Close incognito window
 - Use normal (non-private) browser window
 - localStorage clears when closing incognito tab
@@ -164,25 +178,28 @@ Step 8: ✅ Your registered user should appear!
 ## 🔧 Debug Mode
 
 ### **Enable Debug Logging:**
+
 Open console (`F12` → Console) and type:
+
 ```javascript
 // Show all users
-console.log('Users:', JSON.parse(localStorage.getItem('users')))
+console.log("Users:", JSON.parse(localStorage.getItem("users")));
 
 // Show all orders
-console.log('Orders:', JSON.parse(localStorage.getItem('orders')))
+console.log("Orders:", JSON.parse(localStorage.getItem("orders")));
 
 // Show all products
-console.log('Products:', JSON.parse(localStorage.getItem('products')))
+console.log("Products:", JSON.parse(localStorage.getItem("products")));
 ```
 
 ### **Force Refresh Data:**
+
 ```javascript
 // Manually reload users from localStorage
-localStorage.getItem('users')
+localStorage.getItem("users");
 
 // Clear all data (WARNING: deletes everything)
-localStorage.clear()
+localStorage.clear();
 ```
 
 ---
@@ -190,6 +207,7 @@ localStorage.clear()
 ## 💾 localStorage Structure
 
 Users are stored like this:
+
 ```json
 [
   {
@@ -206,7 +224,9 @@ Users are stored like this:
 ```
 
 ### **Check What's Stored:**
+
 Press F12 → Application → Local Storage → http://localhost:3000
+
 - Look for `users` key
 - Should show JSON array of all registered users
 
@@ -227,22 +247,25 @@ Press F12 → Application → Local Storage → http://localhost:3000
 ## 📞 Still Not Working?
 
 ### **Option 1: Manual Add Test User**
+
 Open console (F12) and paste:
+
 ```javascript
-let users = JSON.parse(localStorage.getItem('users')) || [];
+let users = JSON.parse(localStorage.getItem("users")) || [];
 users.push({
   id: Date.now(),
   name: "Test User",
   email: "test@example.com",
   password: "test123",
   photo: "https://via.placeholder.com/40",
-  registeredDate: new Date().toISOString()
+  registeredDate: new Date().toISOString(),
 });
-localStorage.setItem('users', JSON.stringify(users));
+localStorage.setItem("users", JSON.stringify(users));
 location.reload();
 ```
 
 ### **Option 2: Clear & Restart**
+
 ```javascript
 // Clear everything
 localStorage.clear();
@@ -257,14 +280,14 @@ location.reload();
 
 ## 🚀 Solution Summary
 
-| Problem | Solution |
-|---------|----------|
-| "All Users (0)" | Click 🔄 Refresh button |
-| Separate windows | Use same browser window |
-| Incognito mode | Use normal browsing mode |
-| Can't find user | Check localStorage in console |
-| Multiple browsers | Use same browser only |
-| Data not saved | Register again and check console |
+| Problem           | Solution                         |
+| ----------------- | -------------------------------- |
+| "All Users (0)"   | Click 🔄 Refresh button          |
+| Separate windows  | Use same browser window          |
+| Incognito mode    | Use normal browsing mode         |
+| Can't find user   | Check localStorage in console    |
+| Multiple browsers | Use same browser only            |
+| Data not saved    | Register again and check console |
 
 ---
 
