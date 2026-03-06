@@ -1,0 +1,10 @@
+1|Modern Dining Table|Dining Tables|75000|A sleek and elegant dining table perfect for family gatherings|50|https://images.unsplash.com/photo-1559257615-cd4628902249?w=400&h=400&fit=crop
+2|Comfort Sofa|Sofas|120000|Luxurious leather sofa with reclining features and premium comfort|30|https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop
+3|Office Chair|Chairs|45000|Ergonomic office chair with lumbar support and adjustable height|75|https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=400&h=400&fit=crop
+4|Premium Bed Frame|Beds|95000|Solid wood bed frame with storage compartments and modern design|25|https://images.unsplash.com/photo-1567016432779-094069958ea5?w=400&h=400&fit=crop
+5|Bookshelf Unit|Storage|35000|Spacious wooden bookshelf with adjustable shelves for storage|40|https://images.unsplash.com/photo-1592078615290-033ee584e267?w=400&h=400&fit=crop
+6|Coffee Table|Tables|28000|Minimalist marble top coffee table with wooden base|60|https://images.unsplash.com/photo-1532372320572-cda4ee6f837d?w=400&h=400&fit=crop
+7|Wall Cabinet|Storage|52000|Elegant wall-mounted cabinet with glass doors and LED lighting|35|https://images.unsplash.com/photo-1595291254779-0be2d90e07e9?w=400&h=400&fit=crop
+8|Lounge Chair|Chairs|68000|Ultra-comfortable lounge chair upholstered in premium fabric|45|https://images.unsplash.com/photo-1586023566828-aa23d63ea731?w=400&h=400&fit=crop
+9|TV Stand|Storage|42000|Modern TV stand with storage for media equipment|55|https://images.unsplash.com/photo-1567016507266-beb7adf137dd?w=400&h=400&fit=crop
+10|Outdoor Patio Set|Outdoor|185000|Complete outdoor seating set with weather-resistant material|15|https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=400&h=400&fit=crop

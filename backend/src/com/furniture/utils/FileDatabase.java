@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public class FileDatabase {
-    private static final String DB_PATH = "database/";
+    private static final String DB_PATH = "../database/";
 
     static {
         File dbDir = new File(DB_PATH);

@@ -1,3 +1,5 @@
 # Sample users file format
 # UserID|Name|Email|Password|Phone|RegisteredDate
 # This file will be auto-populated when users register
+23322||||null|1772742923322
+27634|sachintha|sachinthajayaweera66@gmail.com|sachi|null|1772798027634

@@ -21,19 +21,53 @@ function handleLogin(e) {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     
-    // Simulate login (in real app, validate with backend)
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-        setCurrentUser(user);
-        showNotification('Login successful!', 'success');
-        setTimeout(() => {
-            window.location.href = 'products.html';
-        }, 1500);
-    } else {
-        showNotification('Invalid email or password', 'danger');
-    }
+    // Call backend API
+    fetch('http://localhost:8080/api/users/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: email,
+            password: password
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.user) {
+            // Store user info in localStorage
+            const user = {
+                id: data.user.id,
+                name: data.user.name,
+                email: data.user.email,
+                registeredDate: new Date().toISOString()
+            };
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            showNotification('Login successful!', 'success');
+            setTimeout(() => {
+                window.location.href = 'products.html';
+            }, 1500);
+        } else {
+            showNotification(data.error || 'Login failed', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Login error:', error);
+        showNotification('Connection error. Using local login.', 'warning');
+        // Fallback to local storage if backend is down
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (user) {
+            setCurrentUser(user);
+            showNotification('Login successful!', 'success');
+            setTimeout(() => {
+                window.location.href = 'products.html';
+            }, 1500);
+        } else {
+            showNotification('Invalid email or password', 'danger');
+        }
+    });
 }
 
 function handleRegister(e) {
@@ -44,30 +78,67 @@ function handleRegister(e) {
     const password = document.getElementById('register-password').value;
     const photo = document.getElementById('register-photo').value;
     
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    
-    if (users.some(u => u.email === email)) {
-        showNotification('Email already registered', 'danger');
-        return;
-    }
-    
-    const newUser = {
-        id: Date.now(),
-        name: name,
-        email: email,
-        password: password,
-        photo: photo || 'https://via.placeholder.com/40x40?text=' + name.charAt(0).toUpperCase(),
-        registeredDate: new Date().toISOString()
-    };
-    
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    setCurrentUser(newUser);
-    showNotification('Registration successful!', 'success');
-    setTimeout(() => {
-        window.location.href = 'products.html';
-    }, 1500);
+    // Call backend API
+    fetch('http://localhost:8080/api/users/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+            photo: photo
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.userId) {
+            const newUser = {
+                id: data.userId,
+                name: name,
+                email: email,
+                photo: photo || 'https://via.placeholder.com/40x40?text=' + name.charAt(0).toUpperCase(),
+                registeredDate: new Date().toISOString()
+            };
+            setCurrentUser(newUser);
+            showNotification('Registration successful!', 'success');
+            setTimeout(() => {
+                window.location.href = 'products.html';
+            }, 1500);
+        } else {
+            showNotification(data.error || 'Registration failed', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Registration error:', error);
+        showNotification('Connection error. Using local registration.', 'warning');
+        // Fallback to local storage if backend is down
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        
+        if (users.some(u => u.email === email)) {
+            showNotification('Email already registered', 'danger');
+            return;
+        }
+        
+        const newUser = {
+            id: Date.now(),
+            name: name,
+            email: email,
+            password: password,
+            photo: photo || 'https://via.placeholder.com/40x40?text=' + name.charAt(0).toUpperCase(),
+            registeredDate: new Date().toISOString()
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        setCurrentUser(newUser);
+        showNotification('Registration successful!', 'success');
+        setTimeout(() => {
+            window.location.href = 'products.html';
+        }, 1500);
+    });
 }
 
 function toggleForms() {

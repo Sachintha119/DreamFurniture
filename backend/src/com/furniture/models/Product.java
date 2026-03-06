@@ -90,6 +90,7 @@ public class Product implements Serializable {
 
     @Override
     public String toString() {
-        return id + "|" + name + "|" + category + "|" + price + "|" + description + "|" + stock + "|" + createdDate;
+        return id + "|" + name + "|" + category + "|" + price + "|" + description + "|" + stock + "|"
+                + (imageUrl != null ? imageUrl : "") + "|" + createdDate;
     }
 }

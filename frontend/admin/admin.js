@@ -77,32 +77,27 @@ function loadDashboard() {
 
 // Load Products
 function loadProducts() {
-    let products = JSON.parse(localStorage.getItem('products')) || [];
-    
-    // Initialize with default products if empty
-    if (products.length === 0) {
-        products = [
-            {id: 1, name: 'Modern Dining Table', category: 'table', price: 45000, stock: 15, image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=100&h=100&fit=crop'},
-            {id: 2, name: 'Executive Desk', category: 'table', price: 68000, stock: 10, image: 'https://images.unsplash.com/photo-1593642632400-2682810df593?w=100&h=100&fit=crop'},
-            {id: 3, name: 'Coffee Table', category: 'table', price: 22000, stock: 20, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100&h=100&fit=crop'},
-            {id: 4, name: 'Conference Table', category: 'table', price: 90000, stock: 8, image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=100&h=100&fit=crop'},
-            {id: 5, name: 'Side Table', category: 'table', price: 13500, stock: 25, image: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=100&h=100&fit=crop'},
-            {id: 6, name: 'Leather Office Chair', category: 'chair', price: 30000, stock: 12, image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=100&h=100&fit=crop'},
-            {id: 7, name: 'Dining Chair Set', category: 'chair', price: 19500, stock: 18, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100&h=100&fit=crop'},
-            {id: 8, name: 'Lounge Chair', category: 'chair', price: 37500, stock: 14, image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=100&h=100&fit=crop'},
-            {id: 9, name: 'Gaming Chair', category: 'chair', price: 27000, stock: 22, image: 'https://images.unsplash.com/photo-1598882017221-7a3d3f48e4ca?w=100&h=100&fit=crop'},
-            {id: 10, name: 'Executive Manager Chair', category: 'chair', price: 52500, stock: 9, image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=100&h=100&fit=crop'}
-        ];
-        localStorage.setItem('products', JSON.stringify(products));
-    }
-    
-    // Update total products count
+    fetch('http://localhost:8080/api/products')
+        .then(response => response.json())
+        .then(products => {
+            localStorage.setItem('products', JSON.stringify(products || []));
+            renderProductsTable(products || []);
+        })
+        .catch(() => {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            renderProductsTable(products);
+        });
+}
+
+function renderProductsTable(products) {
     const totalProductsEl = document.getElementById('total-products');
     if (totalProductsEl) {
         totalProductsEl.textContent = products.length;
     }
-    
+
     const tbody = document.getElementById('products-table');
+    if (!tbody) return;
+
     tbody.innerHTML = products.map(product => {
         const isSoldOut = product.stock <= 0;
         return `
@@ -111,7 +106,7 @@ function loadProducts() {
             <td><img src="${product.image}" width="50" height="50" style="object-fit: cover; border-radius: 5px;"></td>
             <td>${product.name} ${isSoldOut ? '<span class="badge bg-danger ms-2">SOLD OUT</span>' : ''}</td>
             <td><span class="badge bg-secondary">${product.category}</span></td>
-            <td>Rs ${product.price.toLocaleString()}</td>
+            <td>Rs ${Number(product.price).toLocaleString()}</td>
             <td>${product.stock} ${isSoldOut ? '<span class="text-danger fw-bold">(Out of Stock)</span>' : ''}</td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick='editProduct(${JSON.stringify(product).replace(/'/g, "&apos;")})'>Edit</button>
@@ -153,11 +148,7 @@ function addProduct() {
 }
 
 function saveProduct(name, category, price, stock, description, image) {
-    const products = JSON.parse(localStorage.getItem('products')) || [];
-    const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-    
     const newProduct = {
-        id: newId,
         name: name,
         category: category,
         price: price,
@@ -165,12 +156,26 @@ function saveProduct(name, category, price, stock, description, image) {
         description: description,
         image: image || 'https://via.placeholder.com/100'
     };
-    
-    products.push(newProduct);
-    localStorage.setItem('products', JSON.stringify(products));
-    
-    alert('Product added successfully!');
-    location.reload();
+
+    fetch('http://localhost:8080/api/products', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newProduct)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Failed to add product: ' + data.error);
+                return;
+            }
+            alert('Product added successfully!');
+            loadProducts();
+        })
+        .catch(() => {
+            alert('Backend unavailable. Product not added.');
+        });
 }
 
 // Edit Product
@@ -219,34 +224,57 @@ function saveProductEdit() {
 }
 
 function updateProduct(id, name, category, price, stock, description, image) {
-    const products = JSON.parse(localStorage.getItem('products')) || [];
-    const index = products.findIndex(p => p.id === id);
-    
-    if (index !== -1) {
-        products[index] = {
-            ...products[index],
-            name: name,
-            category: category,
-            price: price,
-            stock: stock,
-            description: description,
-            image: image
-        };
-        
-        localStorage.setItem('products', JSON.stringify(products));
-        alert('Product updated successfully!');
-        location.reload();
-    }
+    const payload = {
+        name: name,
+        category: category,
+        price: price,
+        stock: stock,
+        description: description,
+        image: image
+    };
+
+    fetch(`http://localhost:8080/api/products/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Failed to update product: ' + data.error);
+                return;
+            }
+            alert('Product updated successfully!');
+            loadProducts();
+            const modalEl = document.getElementById('editProductModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        })
+        .catch(() => {
+            alert('Backend unavailable. Product update failed.');
+        });
 }
 
 // Delete Product
 function deleteProduct(id) {
     if (confirm('Are you sure you want to delete this product?')) {
-        const products = JSON.parse(localStorage.getItem('products')) || [];
-        const filteredProducts = products.filter(p => p.id !== id);
-        localStorage.setItem('products', JSON.stringify(filteredProducts));
-        alert('Product deleted successfully!');
-        loadProducts();
+        fetch(`http://localhost:8080/api/products/${id}`, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Failed to delete product: ' + data.error);
+                    return;
+                }
+                alert('Product deleted successfully!');
+                loadProducts();
+            })
+            .catch(() => {
+                alert('Backend unavailable. Product delete failed.');
+            });
     }
 }
 
@@ -351,19 +379,37 @@ function updateOrderStatus(orderId, newStatus) {
 
 // Load Users
 function loadUsers() {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
+    // Fetch users from backend API
+    fetch('http://localhost:8080/api/users')
+        .then(response => response.json())
+        .then(users => {
+            displayUsersTable(users);
+        })
+        .catch(error => {
+            console.log('Backend unavailable, using localStorage');
+            // Fallback to localStorage
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            displayUsersTable(users);
+        });
+}
+
+function displayUsersTable(users) {
     const orders = JSON.parse(localStorage.getItem('orders')) || [];
     
     // Debug log
     console.log('🔍 Admin Panel - Users Data:', {
         totalUsers: users.length,
-        usersList: users.map(u => ({ name: u.name, email: u.email, date: u.registeredDate }))
+        usersList: users.map(u => ({ name: u.name, email: u.email }))
     });
     
     // Update user count
-    document.getElementById('user-count').textContent = users.length;
+    const userCountEl = document.getElementById('user-count');
+    if (userCountEl) {
+        userCountEl.textContent = users.length;
+    }
     
     const tbody = document.getElementById('users-table');
+    if (!tbody) return;
     
     if (users.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="text-center text-warning"><strong>No users found. Make sure you registered in the USER panel first!</strong></td></tr>';

@@ -82,7 +82,48 @@ public class UserController implements HttpHandler {
     }
 
     private void handleGetUser(HttpExchange exchange, String path) throws IOException {
-        sendError(exchange, 200, "User endpoint");
+        try {
+            // GET /api/users - Get all users
+            if (path.equals("/api/users")) {
+                java.util.List<User> users = UserService.getAllUsers();
+                StringBuilder json = new StringBuilder("[");
+
+                for (int i = 0; i < users.size(); i++) {
+                    User u = users.get(i);
+                    json.append("{\"id\":").append(u.getId())
+                            .append(",\"name\":\"").append(u.getName())
+                            .append("\",\"email\":\"").append(u.getEmail())
+                            .append("\",\"phone\":\"").append(u.getPhone() != null ? u.getPhone() : "")
+                            .append("\",\"registeredDate\":").append(u.getRegisteredDate())
+                            .append("}");
+                    if (i < users.size() - 1)
+                        json.append(",");
+                }
+                json.append("]");
+
+                sendJSON(exchange, 200, json.toString());
+            }
+            // GET /api/users/{id} - Get specific user
+            else if (path.contains("/api/users/") && !path.contains("/login") && !path.contains("/register")) {
+                String[] pathParts = path.split("/");
+                int userId = Integer.parseInt(pathParts[pathParts.length - 1]);
+                User user = UserService.getUserById(userId);
+
+                if (user != null) {
+                    String json = "{\"id\":" + user.getId() + ",\"name\":\"" + user.getName() +
+                            "\",\"email\":\"" + user.getEmail() + "\",\"phone\":\"" +
+                            (user.getPhone() != null ? user.getPhone() : "") +
+                            "\",\"registeredDate\":" + user.getRegisteredDate() + "}";
+                    sendJSON(exchange, 200, json);
+                } else {
+                    sendError(exchange, 404, "User not found");
+                }
+            } else {
+                sendError(exchange, 404, "Endpoint not found");
+            }
+        } catch (Exception e) {
+            sendError(exchange, 400, "Invalid request");
+        }
     }
 
     private String extractValue(String json, String key) {
