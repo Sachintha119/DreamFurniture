@@ -1,6 +1,7 @@
 package com.furniture.controllers;
 
 import com.furniture.services.UserService;
+import com.furniture.services.OrderService;
 import com.furniture.models.User;
 import com.sun.net.httpserver.*;
 import java.io.IOException;
@@ -25,6 +26,8 @@ public class UserController implements HttpHandler {
             }
         } else if (method.equals("GET")) {
             handleGetUser(exchange, path);
+        } else if (method.equals("DELETE")) {
+            handleDeleteUser(exchange, path);
         } else if (method.equals("OPTIONS")) {
             exchange.sendResponseHeaders(200, -1);
         } else {
@@ -35,15 +38,19 @@ public class UserController implements HttpHandler {
     private void handleLogin(HttpExchange exchange) throws IOException {
         try {
             InputStream is = exchange.getRequestBody();
-            byte[] bytes = new byte[is.available()];
-            is.read(bytes);
+            byte[] bytes = is.readAllBytes();
             String body = new String(bytes);
 
             // Parse JSON - simple parsing
             String email = extractValue(body, "email");
             String password = extractValue(body, "password");
 
-            User user = UserService.loginUser(email, password);
+            if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+                sendError(exchange, 400, "Email and password are required");
+                return;
+            }
+
+            User user = UserService.loginUser(email.trim(), password);
 
             if (user != null) {
                 sendJSON(exchange, 200, "{\"message\":\"Login successful\",\"user\":{\"id\":" + user.getId() +
@@ -59,8 +66,7 @@ public class UserController implements HttpHandler {
     private void handleRegister(HttpExchange exchange) throws IOException {
         try {
             InputStream is = exchange.getRequestBody();
-            byte[] bytes = new byte[is.available()];
-            is.read(bytes);
+            byte[] bytes = is.readAllBytes();
             String body = new String(bytes);
 
             // Parse JSON
@@ -68,7 +74,13 @@ public class UserController implements HttpHandler {
             String email = extractValue(body, "email");
             String password = extractValue(body, "password");
 
-            User newUser = new User((int) (System.currentTimeMillis() % 100000), name, email, password);
+            if (name == null || name.trim().isEmpty() || email == null || email.trim().isEmpty() || password == null
+                    || password.trim().isEmpty()) {
+                sendError(exchange, 400, "Name, email and password are required");
+                return;
+            }
+
+            User newUser = new User((int) (System.currentTimeMillis() % 100000), name.trim(), email.trim(), password);
             boolean success = UserService.registerUser(newUser);
 
             if (success) {
@@ -120,6 +132,35 @@ public class UserController implements HttpHandler {
                 }
             } else {
                 sendError(exchange, 404, "Endpoint not found");
+            }
+        } catch (Exception e) {
+            sendError(exchange, 400, "Invalid request");
+        }
+    }
+
+    private void handleDeleteUser(HttpExchange exchange, String path) throws IOException {
+        try {
+            if (!path.matches("/api/users/\\d+")) {
+                sendError(exchange, 404, "Endpoint not found");
+                return;
+            }
+
+            String[] pathParts = path.split("/");
+            int userId = Integer.parseInt(pathParts[pathParts.length - 1]);
+
+            User user = UserService.getUserById(userId);
+            if (user == null) {
+                sendError(exchange, 404, "User not found");
+                return;
+            }
+
+            boolean success = UserService.deleteUser(userId);
+
+            if (success) {
+                OrderService.deleteOrdersByCustomerEmail(user.getEmail());
+                sendJSON(exchange, 200, "{\"message\":\"User deleted successfully\"}");
+            } else {
+                sendError(exchange, 404, "User not found");
             }
         } catch (Exception e) {
             sendError(exchange, 400, "Invalid request");

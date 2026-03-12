@@ -222,11 +222,19 @@ public class UserService {
         try {
             String[] parts = line.split("\\|");
             if (parts.length >= 6) {
+                String name = parts[1] != null ? parts[1].trim() : "";
+                String email = parts[2] != null ? parts[2].trim() : "";
+                String password = parts[3] != null ? parts[3].trim() : "";
+
+                if (email.isEmpty() || password.isEmpty()) {
+                    return null;
+                }
+
                 User user = new User(
                         Integer.parseInt(parts[0]),
-                        parts[1],
-                        parts[2],
-                        parts[3]);
+                        name,
+                        email,
+                        password);
                 user.setPhone(parts[4]);
                 user.setRegisteredDate(Long.parseLong(parts[5]));
                 return user;

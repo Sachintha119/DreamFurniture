@@ -1,5 +1,6 @@
 # Sample users file format
 # UserID|Name|Email|Password|Phone|RegisteredDate
 # This file will be auto-populated when users register
-23322||||null|1772742923322
-27634|sachintha|sachinthajayaweera66@gmail.com|sachi|null|1772798027634
+85558||||null|1773244985558
+35700|sachintha|sachinthajayaweera66@gmail.com|sachi|null|1773246235700
+93166|Jayaweera|cit-25-01-0308@sltc.edu.lk|1234|null|1773305593166

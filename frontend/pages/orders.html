@@ -42,6 +42,31 @@
     <section class="py-5">
         <div class="container">
             <h2 class="mb-4 fw-bold">Your Orders</h2>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label">Search</label>
+                            <input type="text" class="form-control" id="user-order-search" placeholder="Order ID">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="user-order-status-filter">
+                                <option value="all">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-secondary w-100" type="button" id="clear-user-order-filters">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div id="orders-container">
                 <!-- Orders will be loaded here -->

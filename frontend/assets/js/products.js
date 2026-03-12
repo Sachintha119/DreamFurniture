@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadProducts() {
     // Load products from backend API
-    fetch('http://localhost:8080/api/products')
+    fetch(`${API_URL}/products`)
         .then(response => response.json())
         .then(data => {
             if (Array.isArray(data)) {
@@ -32,7 +32,7 @@ function loadProducts() {
                     category: 'table',
                     price: 45000,
                     description: 'Sleek modern dining table with glass top',
-                    image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=500&h=500&fit=crop'
+                    image: 'https://m.media-amazon.com/images/I/912KbGW-BiL.jpg'
                 },
                 {
                     id: 2,
@@ -40,7 +40,7 @@ function loadProducts() {
                     category: 'table',
                     price: 68000,
                     description: 'Premium wood desk for home office',
-                    image: 'https://images.unsplash.com/photo-1593642632400-2682810df593?w=500&h=500&fit=crop'
+                    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjxKgZ6oYPkpoEpM1BlyBEMuXQLzXUW6W21w&s'
                 },
                 {
                     id: 3,
@@ -48,7 +48,7 @@ function loadProducts() {
                     category: 'table',
                     price: 22000,
                     description: 'Minimalist coffee table with metal legs',
-                    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=500&fit=crop'
+                    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBTl7lA9bLD3zWV8meHHshkAccZnAM8eMMKA&s'
                 },
                 {
                     id: 4,
@@ -56,7 +56,7 @@ function loadProducts() {
                     category: 'chair',
                     price: 30000,
                     description: 'Ergonomic leather chair with lumbar support',
-                    image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&h=500&fit=crop'
+                    image: 'https://m.media-amazon.com/images/I/81gKsqmM9gL._AC_UF894,1000_QL80_.jpg'
                 },
                 {
                     id: 5,
@@ -64,7 +64,7 @@ function loadProducts() {
                     category: 'chair',
                     price: 19500,
                     description: 'Set of 4 modern dining chairs',
-                    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=500&fit=crop'
+                    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOnd4KTRwTjgGNAvL-nnuAMRtYPrV3OVJ43w&s'
                 },
                 {
                     id: 6,
@@ -72,7 +72,7 @@ function loadProducts() {
                     category: 'chair',
                     price: 37500,
                     description: 'Comfortable lounge chair with ottoman',
-                    image: 'https://images.unsplash.com/photo-1598882017221-7a3d3f48e4ca?w=500&h=500&fit=crop'
+                    image: 'https://m.media-amazon.com/images/I/61NFXfH3BBL._AC_UF894,1000_QL80_.jpg'
                 }
             ];
             filteredProducts = [...allProducts];

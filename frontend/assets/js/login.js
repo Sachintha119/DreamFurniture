@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+function getApiBaseUrl() {
+    if (typeof API_URL !== 'undefined' && API_URL) {
+        return API_URL;
+    }
+    const host = window.location.hostname || 'localhost';
+    return `http://${host}:8080/api`;
+}
+
 function handleLogin(e) {
     e.preventDefault();
     
@@ -22,7 +30,7 @@ function handleLogin(e) {
     const password = document.getElementById('login-password').value;
     
     // Call backend API
-    fetch('http://localhost:8080/api/users/login', {
+    fetch(`${getApiBaseUrl()}/users/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -53,20 +61,7 @@ function handleLogin(e) {
     })
     .catch(error => {
         console.error('Login error:', error);
-        showNotification('Connection error. Using local login.', 'warning');
-        // Fallback to local storage if backend is down
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(u => u.email === email && u.password === password);
-        
-        if (user) {
-            setCurrentUser(user);
-            showNotification('Login successful!', 'success');
-            setTimeout(() => {
-                window.location.href = 'products.html';
-            }, 1500);
-        } else {
-            showNotification('Invalid email or password', 'danger');
-        }
+        showNotification('Connection error. Please start backend server.', 'danger');
     });
 }
 
@@ -79,7 +74,7 @@ function handleRegister(e) {
     const photo = document.getElementById('register-photo').value;
     
     // Call backend API
-    fetch('http://localhost:8080/api/users/register', {
+    fetch(`${getApiBaseUrl()}/users/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -112,32 +107,7 @@ function handleRegister(e) {
     })
     .catch(error => {
         console.error('Registration error:', error);
-        showNotification('Connection error. Using local registration.', 'warning');
-        // Fallback to local storage if backend is down
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        
-        if (users.some(u => u.email === email)) {
-            showNotification('Email already registered', 'danger');
-            return;
-        }
-        
-        const newUser = {
-            id: Date.now(),
-            name: name,
-            email: email,
-            password: password,
-            photo: photo || 'https://via.placeholder.com/40x40?text=' + name.charAt(0).toUpperCase(),
-            registeredDate: new Date().toISOString()
-        };
-        
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-        
-        setCurrentUser(newUser);
-        showNotification('Registration successful!', 'success');
-        setTimeout(() => {
-            window.location.href = 'products.html';
-        }, 1500);
+        showNotification('Connection error. Please start backend server.', 'danger');
     });
 }
 

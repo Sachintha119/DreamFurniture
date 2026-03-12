@@ -217,6 +217,49 @@ public class OrderService {
         return true;
     }
 
+    // Delete all orders for a user email
+    public static int deleteOrdersByCustomerEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return 0;
+        }
+
+        String normalizedEmail = email.trim().toLowerCase();
+
+        if (MSSQLDatabase.isEnabled()) {
+            MSSQLDatabase.initializeSchemaIfNeeded();
+            try (Connection conn = MSSQLDatabase.getConnection()) {
+                String sql = "DELETE FROM orders WHERE LOWER(email) = LOWER(?)";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, normalizedEmail);
+                    return stmt.executeUpdate();
+                }
+            } catch (Exception e) {
+                System.err.println(
+                        "[OrderService] MSSQL deleteByCustomerEmail failed, fallback file DB: " + e.getMessage());
+            }
+        }
+
+        int deletedCount = 0;
+        List<String> lines = FileDatabase.readFromFile(ORDERS_FILE);
+        FileDatabase.clearFile(ORDERS_FILE);
+
+        for (String line : lines) {
+            if (line == null || line.trim().isEmpty()) {
+                continue;
+            }
+
+            Order order = parseOrder(line);
+            if (order != null && order.getEmail() != null
+                    && order.getEmail().trim().equalsIgnoreCase(normalizedEmail)) {
+                deletedCount++;
+            } else {
+                FileDatabase.writeToFile(ORDERS_FILE, line);
+            }
+        }
+
+        return deletedCount;
+    }
+
     private static Order mapOrder(ResultSet rs) throws Exception {
         Order order = new Order(rs.getString("order_id"), rs.getString("customer_name"), rs.getString("email"));
         order.setPhone(rs.getString("phone"));

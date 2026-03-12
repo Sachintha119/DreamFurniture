@@ -1,5 +1,27 @@
 // Admin Panel JavaScript
 
+let adminUsersCache = [];
+let adminOrdersCache = [];
+
+function getAdminCredentials() {
+    let creds = null;
+    try {
+        creds = JSON.parse(localStorage.getItem('adminCredentials'));
+    } catch (e) {
+        creds = null;
+    }
+
+    if (!creds || !creds.username || !creds.password) {
+        creds = {
+            username: 'admin',
+            password: 'admin123'
+        };
+        localStorage.setItem('adminCredentials', JSON.stringify(creds));
+    }
+
+    return creds;
+}
+
 // Check Authentication
 function checkAuth() {
     const adminLoggedIn = localStorage.getItem('adminLoggedIn');
@@ -38,41 +60,52 @@ function logout() {
     }
 }
 
+function getOrderAmount(order) {
+    const amount = order && order.pricing ? order.pricing.total : order ? order.total : 0;
+    return Number(amount || 0);
+}
+
+function isRevenueOrder(order) {
+    return (order.status || '').toLowerCase() !== 'cancelled';
+}
+
 // Load Dashboard
 function loadDashboard() {
-    const orders = JSON.parse(localStorage.getItem('orders')) || [];
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    
-    // Calculate statistics
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, order) => {
-        const amount = order.pricing ? order.pricing.total : order.total;
-        return sum + (amount || 0);
-    }, 0);
-    const totalUsers = users.length;
-    
-    // Update stats
-    document.getElementById('total-orders').textContent = totalOrders;
-    document.getElementById('total-revenue').textContent = 'Rs ' + totalRevenue.toLocaleString();
-    document.getElementById('total-users').textContent = totalUsers;
-    
-    // Load recent orders
-    const recentOrders = orders.slice(-5).reverse();
-    const tbody = document.getElementById('recent-orders');
-    
-    if (recentOrders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No orders yet</td></tr>';
-    } else {
-        tbody.innerHTML = recentOrders.map(order => `
-            <tr>
-                <td>${order.orderId}</td>
-                <td>${order.customerName}</td>
-                <td>Rs ${(order.pricing ? order.pricing.total : order.total).toLocaleString()}</td>
-                <td><span class="badge bg-${getStatusColor(order.status)}">${order.status}</span></td>
-                <td>${new Date(order.orderDate).toLocaleDateString()}</td>
-            </tr>
-        `).join('');
-    }
+    Promise.all([
+        fetch('http://localhost:8080/api/orders').then(r => r.json()).catch(() => JSON.parse(localStorage.getItem('orders')) || []),
+        fetch('http://localhost:8080/api/users').then(r => r.json()).catch(() => JSON.parse(localStorage.getItem('users')) || [])
+    ]).then(([ordersData, usersData]) => {
+        const orders = Array.isArray(ordersData) ? ordersData : [];
+        const users = Array.isArray(usersData) ? usersData : [];
+
+        localStorage.setItem('orders', JSON.stringify(orders));
+        localStorage.setItem('users', JSON.stringify(users));
+
+        const totalOrders = orders.length;
+        const totalRevenue = orders.filter(isRevenueOrder).reduce((sum, order) => sum + getOrderAmount(order), 0);
+        const totalUsers = users.length;
+
+        document.getElementById('total-orders').textContent = totalOrders;
+        document.getElementById('total-revenue').textContent = 'Rs ' + totalRevenue.toLocaleString();
+        document.getElementById('total-users').textContent = totalUsers;
+
+        const recentOrders = orders.slice(-5).reverse();
+        const tbody = document.getElementById('recent-orders');
+
+        if (recentOrders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">No orders yet</td></tr>';
+        } else {
+            tbody.innerHTML = recentOrders.map(order => `
+                <tr>
+                    <td>${order.orderId}</td>
+                    <td>${order.customerName}</td>
+                    <td>Rs ${getOrderAmount(order).toLocaleString()}</td>
+                    <td><span class="badge bg-${getStatusColor(order.status)}">${order.status}</span></td>
+                    <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+    });
 }
 
 // Load Products
@@ -280,14 +313,76 @@ function deleteProduct(id) {
 
 // Load Admin Orders
 function loadAdminOrders() {
-    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    fetch('http://localhost:8080/api/orders')
+        .then(response => response.json())
+        .then(orders => {
+            adminOrdersCache = Array.isArray(orders) ? orders : [];
+            applyAdminOrderFilters();
+        })
+        .catch(() => {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            adminOrdersCache = orders;
+            applyAdminOrderFilters();
+        });
+}
+
+function initAdminOrderFilters() {
+    const searchInput = document.getElementById('admin-order-search');
+    const statusSelect = document.getElementById('admin-order-status-filter');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyAdminOrderFilters);
+    }
+    if (statusSelect) {
+        statusSelect.addEventListener('change', applyAdminOrderFilters);
+    }
+}
+
+function applyAdminOrderFilters() {
+    const searchInput = document.getElementById('admin-order-search');
+    const statusSelect = document.getElementById('admin-order-status-filter');
+    const search = (searchInput ? searchInput.value : '').trim().toLowerCase();
+    const status = (statusSelect ? statusSelect.value : 'all').toLowerCase();
+
+    const filtered = adminOrdersCache.filter(order => {
+        const orderStatus = (order.status || '').toLowerCase();
+        const matchesStatus = status === 'all' || orderStatus === status;
+
+        const haystack = [
+            order.orderId,
+            order.customerName,
+            order.email,
+            order.userEmail
+        ].join(' ').toLowerCase();
+        const matchesSearch = !search || haystack.includes(search);
+
+        return matchesStatus && matchesSearch;
+    });
+
+    const countEl = document.getElementById('admin-order-count');
+    if (countEl) {
+        countEl.textContent = filtered.length;
+    }
+
+    renderAdminOrders(filtered);
+}
+
+function clearAdminOrderFilters() {
+    const searchInput = document.getElementById('admin-order-search');
+    const statusSelect = document.getElementById('admin-order-status-filter');
+    if (searchInput) searchInput.value = '';
+    if (statusSelect) statusSelect.value = 'all';
+    applyAdminOrderFilters();
+}
+
+function renderAdminOrders(orders) {
     const container = document.getElementById('orders-list');
-    
+
     if (orders.length === 0) {
         container.innerHTML = '<p class="text-center">No orders yet</p>';
         return;
     }
-    
+
     container.innerHTML = orders.map(order => {
         const isCustom = order.orderType === 'custom-table';
         return `
@@ -322,6 +417,9 @@ function loadAdminOrders() {
                         </div>
                     </div>
                     ${isCustom ? generateCustomTableInfo(order) : generateRegularOrderInfo(order)}
+                </div>
+                <div class="card-footer bg-light d-flex justify-content-end gap-2">
+                    ${order.status === 'cancelled' ? `<button class="btn btn-sm btn-outline-danger" onclick="removeOrder('${order.orderId}')">Remove Order</button>` : ''}
                 </div>
             </div>
         `;
@@ -366,15 +464,116 @@ function generateRegularOrderInfo(order) {
 
 // Update Order Status
 function updateOrderStatus(orderId, newStatus) {
-    const orders = JSON.parse(localStorage.getItem('orders')) || [];
-    const orderIndex = orders.findIndex(o => o.orderId === orderId);
-    
-    if (orderIndex !== -1) {
-        orders[orderIndex].status = newStatus;
-        localStorage.setItem('orders', JSON.stringify(orders));
-        alert('Order status updated to: ' + newStatus);
-        loadAdminOrders();
+    fetch(`http://localhost:8080/api/orders/${orderId}${newStatus === 'cancelled' ? '/cancel' : ''}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Failed to update order: ' + data.error);
+                return;
+            }
+
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const orderIndex = orders.findIndex(o => o.orderId === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                localStorage.setItem('orders', JSON.stringify(orders));
+            }
+
+            const cachedOrder = adminOrdersCache.find(order => order.orderId === orderId);
+            if (cachedOrder) {
+                cachedOrder.status = newStatus;
+            }
+
+            alert('Order status updated to: ' + newStatus);
+            loadAdminOrders();
+        })
+        .catch(() => {
+            alert('Backend unavailable. Order update failed.');
+        });
+}
+
+function removeOrder(orderId) {
+    if (!confirm('Remove this order permanently?')) {
+        return;
     }
+
+    fetch(`http://localhost:8080/api/orders/${orderId}`, {
+        method: 'DELETE'
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Failed to remove order: ' + data.error);
+                return;
+            }
+
+            // Sync local cache
+            adminOrdersCache = adminOrdersCache.filter(order => order.orderId !== orderId);
+
+            // Sync localStorage cache used by some pages
+            const localOrders = JSON.parse(localStorage.getItem('orders')) || [];
+            localStorage.setItem('orders', JSON.stringify(localOrders.filter(order => order.orderId !== orderId)));
+
+            applyAdminOrderFilters();
+            alert('Order removed successfully!');
+        })
+        .catch(() => {
+            alert('Backend unavailable. Order remove failed.');
+        });
+}
+
+function removeAllCancelledOrders() {
+    const cancelledOrders = adminOrdersCache.filter(order => (order.status || '').toLowerCase() === 'cancelled');
+
+    if (cancelledOrders.length === 0) {
+        alert('No cancelled orders to remove.');
+        return;
+    }
+
+    if (!confirm(`Remove all ${cancelledOrders.length} cancelled orders permanently?`)) {
+        return;
+    }
+
+    const removeRequests = cancelledOrders.map(order =>
+        fetch(`http://localhost:8080/api/orders/${order.orderId}`, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .catch(() => ({ error: 'Backend unavailable' }))
+    );
+
+    Promise.all(removeRequests).then(results => {
+        const failed = results.filter(result => result && result.error).length;
+        const removedCount = cancelledOrders.length - failed;
+
+        if (removedCount > 0) {
+            const cancelledIds = new Set(cancelledOrders.map(order => order.orderId));
+
+            adminOrdersCache = adminOrdersCache.filter(order => !cancelledIds.has(order.orderId));
+
+            const localOrders = JSON.parse(localStorage.getItem('orders')) || [];
+            localStorage.setItem(
+                'orders',
+                JSON.stringify(localOrders.filter(order => !cancelledIds.has(order.orderId)))
+            );
+
+            applyAdminOrderFilters();
+        }
+
+        if (failed > 0) {
+            alert(`Removed ${removedCount} cancelled order(s). ${failed} failed.`);
+            loadAdminOrders();
+            return;
+        }
+
+        alert(`Removed ${removedCount} cancelled order(s) successfully!`);
+    });
 }
 
 // Load Users
@@ -383,12 +582,14 @@ function loadUsers() {
     fetch('http://localhost:8080/api/users')
         .then(response => response.json())
         .then(users => {
+            adminUsersCache = Array.isArray(users) ? users : [];
             displayUsersTable(users);
         })
         .catch(error => {
             console.log('Backend unavailable, using localStorage');
             // Fallback to localStorage
             const users = JSON.parse(localStorage.getItem('users')) || [];
+            adminUsersCache = users;
             displayUsersTable(users);
         });
 }
@@ -498,43 +699,84 @@ function viewUserDetails(user) {
 // Delete User
 function deleteUser(email) {
     if (confirm('Are you sure you want to delete this user?')) {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const filteredUsers = users.filter(u => u.email !== email);
-        localStorage.setItem('users', JSON.stringify(filteredUsers));
-        alert('User deleted!');
-        loadUsers();
+        const removeFromPageAndLocal = () => {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const filteredUsers = users.filter(u => u.email !== email);
+            localStorage.setItem('users', JSON.stringify(filteredUsers));
+
+            adminUsersCache = adminUsersCache.filter(u => u.email !== email);
+            displayUsersTable(adminUsersCache);
+
+            const userModalEl = document.getElementById('userDetailsModal');
+            const userModal = bootstrap.Modal.getInstance(userModalEl);
+            if (userModal) {
+                userModal.hide();
+            }
+        };
+
+        const user = adminUsersCache.find(u => u.email === email);
+
+        if (!user || !user.id) {
+            removeFromPageAndLocal();
+            alert('User deleted locally. Backend user was not found.');
+            loadUsers();
+            return;
+        }
+
+        fetch(`http://localhost:8080/api/users/${user.id}`, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Failed to delete user: ' + data.error);
+                    return;
+                }
+
+                removeFromPageAndLocal();
+                alert('User deleted!');
+                loadUsers();
+            })
+            .catch(() => {
+                alert('Backend unavailable. User delete failed.');
+            });
     }
 }
 
 // Load Reports
 function loadReports() {
-    const orders = JSON.parse(localStorage.getItem('orders')) || [];
-    
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, order) => sum + (order.pricing ? order.pricing.total : order.total || 0), 0);
-    const avgOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const customOrders = orders.filter(o => o.orderType === 'custom-table').length;
-    
-    // Status breakdown
-    const statusCount = {
-        pending: orders.filter(o => o.status === 'pending').length,
-        processing: orders.filter(o => o.status === 'processing').length,
-        shipped: orders.filter(o => o.status === 'shipped').length,
-        delivered: orders.filter(o => o.status === 'delivered').length,
-        cancelled: orders.filter(o => o.status === 'cancelled').length
-    };
-    
-    // Update UI
-    document.getElementById('report-total-orders').textContent = totalOrders;
-    document.getElementById('report-total-revenue').textContent = 'Rs ' + totalRevenue.toLocaleString();
-    document.getElementById('report-avg-order').textContent = 'Rs ' + Math.round(avgOrder).toLocaleString();
-    document.getElementById('report-custom-orders').textContent = customOrders;
-    
-    document.getElementById('status-pending').textContent = statusCount.pending;
-    document.getElementById('status-processing').textContent = statusCount.processing;
-    document.getElementById('status-shipped').textContent = statusCount.shipped;
-    document.getElementById('status-delivered').textContent = statusCount.delivered;
-    document.getElementById('status-cancelled').textContent = statusCount.cancelled;
+    fetch('http://localhost:8080/api/orders')
+        .then(response => response.json())
+        .catch(() => JSON.parse(localStorage.getItem('orders')) || [])
+        .then(ordersData => {
+            const orders = Array.isArray(ordersData) ? ordersData : [];
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            const totalOrders = orders.length;
+            const revenueOrders = orders.filter(isRevenueOrder);
+            const totalRevenue = revenueOrders.reduce((sum, order) => sum + getOrderAmount(order), 0);
+            const avgOrder = revenueOrders.length > 0 ? totalRevenue / revenueOrders.length : 0;
+            const customOrders = orders.filter(o => o.orderType === 'custom-table').length;
+
+            const statusCount = {
+                pending: orders.filter(o => o.status === 'pending').length,
+                processing: orders.filter(o => o.status === 'processing').length,
+                shipped: orders.filter(o => o.status === 'shipped').length,
+                delivered: orders.filter(o => o.status === 'delivered').length,
+                cancelled: orders.filter(o => o.status === 'cancelled').length
+            };
+
+            document.getElementById('report-total-orders').textContent = totalOrders;
+            document.getElementById('report-total-revenue').textContent = 'Rs ' + totalRevenue.toLocaleString();
+            document.getElementById('report-avg-order').textContent = 'Rs ' + Math.round(avgOrder).toLocaleString();
+            document.getElementById('report-custom-orders').textContent = customOrders;
+
+            document.getElementById('status-pending').textContent = statusCount.pending;
+            document.getElementById('status-processing').textContent = statusCount.processing;
+            document.getElementById('status-shipped').textContent = statusCount.shipped;
+            document.getElementById('status-delivered').textContent = statusCount.delivered;
+            document.getElementById('status-cancelled').textContent = statusCount.cancelled;
+        });
 }
 
 // Export Report
@@ -566,10 +808,45 @@ function saveTablePricing() {
 
 // Change Password
 function changePassword() {
-    const newPassword = prompt('Enter new password:');
-    if (newPassword) {
-        alert('Password changed successfully! (This would update in database)');
+    const creds = getAdminCredentials();
+    const currentPassword = prompt('Enter current password:');
+
+    if (currentPassword === null) {
+        return;
     }
+
+    if (currentPassword !== creds.password) {
+        alert('Current password is incorrect.');
+        return;
+    }
+
+    const newPassword = prompt('Enter new password (min 6 characters):');
+    if (newPassword === null) {
+        return;
+    }
+
+    if (newPassword.trim().length < 6) {
+        alert('New password must be at least 6 characters.');
+        return;
+    }
+
+    const confirmPassword = prompt('Confirm new password:');
+    if (confirmPassword === null) {
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert('Passwords do not match.');
+        return;
+    }
+
+    const updatedCreds = {
+        username: creds.username,
+        password: newPassword
+    };
+
+    localStorage.setItem('adminCredentials', JSON.stringify(updatedCreds));
+    alert('Admin password changed successfully!');
 }
 
 // Helper Functions

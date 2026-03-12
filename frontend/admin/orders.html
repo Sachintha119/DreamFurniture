@@ -35,6 +35,37 @@
             <div class="container-fluid p-4">
                 <h4 class="mb-3">All Orders</h4>
 
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Search</label>
+                                <input type="text" class="form-control" id="admin-order-search" placeholder="Order ID, customer, email">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="admin-order-status-filter">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-secondary w-100" type="button" onclick="clearAdminOrderFilters()">Clear Filters</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-danger w-100" type="button" onclick="removeAllCancelledOrders()">Remove All Cancelled</button>
+                            </div>
+                            <div class="col-md-2 text-md-end">
+                                <small class="text-muted">Showing: <span id="admin-order-count">0</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-body">
                         <div id="orders-list">
@@ -51,6 +82,7 @@
     <script>
         checkAuth();
         loadAdminOrders();
+        initAdminOrderFilters();
     </script>
 </body>
 </html>

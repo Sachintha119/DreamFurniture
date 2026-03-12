@@ -200,6 +200,16 @@ Or use the automated script:
 START_SERVERS.bat
 ```
 
+For frontend sharing with ngrok, use:
+
+```bash
+start-ngrok.bat
+```
+
+- `START_SERVERS.bat` starts the Java backend on port `8080` and the Python frontend on port `3000`
+- `start_server.bat` starts only the Java backend
+- `start-ngrok.bat` starts the frontend server on port `3000` and opens an ngrok tunnel for that frontend port
+
 ### Accessing from Multiple Devices
 
 **Laptop (Local)**
@@ -216,8 +226,12 @@ START_SERVERS.bat
 **Internet Access (With ngrok)**
 
 ```bash
-ngrok http 3000
+start-ngrok.bat
 ```
+
+- This project's frontend is served on `http://localhost:3000`
+- The backend API is served on `http://localhost:8080/api`
+- The current frontend JavaScript still calls the backend with `localhost:8080`, so external users will need the frontend API base URL updated to the public backend URL before full remote ordering works over the internet
 
 Share the generated ngrok URL with anyone!
 

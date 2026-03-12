@@ -1,12 +1,15 @@
 // Main JavaScript for FurniStyle
 
-const API_URL = 'http://localhost:8080/api';
+const API_HOST = window.location.hostname || 'localhost';
+const API_URL = `http://${API_HOST}:8080/api`;
+window.API_URL = API_URL;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     loadCartCount();
     checkUserLogin();
     updateUserNavbar();
+    validateCurrentUserSession();
 });
 
 // Load Cart Count
@@ -95,6 +98,27 @@ function checkUserLogin() {
     const user = getCurrentUser();
     if (!user && window.location.pathname.includes('checkout.html')) {
         window.location.href = 'login.html';
+    }
+}
+
+async function validateCurrentUserSession() {
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/users/${user.id}`);
+        if (!response.ok) {
+            localStorage.removeItem('currentUser');
+            updateUserNavbar();
+            if (window.location.pathname.includes('/pages/') && !window.location.pathname.includes('login.html')) {
+                showNotification('Your account was removed. Please login with a valid account.', 'warning');
+                window.location.href = 'login.html';
+            }
+        }
+    } catch (error) {
+        console.warn('Session validation skipped: backend unavailable');
     }
 }
 

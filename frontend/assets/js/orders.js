@@ -1,8 +1,31 @@
 // Orders Page JavaScript
 
+let userOrdersCache = [];
+
 document.addEventListener('DOMContentLoaded', function() {
+    initOrderFilters();
     loadOrders();
 });
+
+function initOrderFilters() {
+    const searchInput = document.getElementById('user-order-search');
+    const statusSelect = document.getElementById('user-order-status-filter');
+    const clearBtn = document.getElementById('clear-user-order-filters');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyOrderFilters);
+    }
+    if (statusSelect) {
+        statusSelect.addEventListener('change', applyOrderFilters);
+    }
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (statusSelect) statusSelect.value = 'all';
+            applyOrderFilters();
+        });
+    }
+}
 
 function loadOrders() {
     const user = getCurrentUser();
@@ -15,7 +38,22 @@ function loadOrders() {
     
     // Get all orders and filter by current user's email
     const allOrders = JSON.parse(localStorage.getItem('orders')) || [];
-    const orders = allOrders.filter(order => order.userEmail === user.email);
+    userOrdersCache = allOrders.filter(order => order.userEmail === user.email);
+    applyOrderFilters();
+}
+
+function applyOrderFilters() {
+    const searchInput = document.getElementById('user-order-search');
+    const statusSelect = document.getElementById('user-order-status-filter');
+
+    const search = (searchInput ? searchInput.value : '').trim().toLowerCase();
+    const status = (statusSelect ? statusSelect.value : 'all').toLowerCase();
+
+    const orders = userOrdersCache.filter(order => {
+        const matchesStatus = status === 'all' || (order.status || '').toLowerCase() === status;
+        const matchesSearch = !search || (order.orderId || '').toLowerCase().includes(search);
+        return matchesStatus && matchesSearch;
+    });
     
     const ordersContainer = document.getElementById('orders-container');
     const noOrders = document.getElementById('no-orders');
@@ -98,6 +136,7 @@ function loadOrders() {
                 <div class="card-footer bg-light">
                     <button class="btn btn-sm btn-info" onclick="showOrderDetail('${order.orderId}')">View Details</button>
                     ${order.status === 'pending' ? `<button class="btn btn-sm btn-danger" onclick="cancelOrder('${order.orderId}')">Cancel Order</button>` : ''}
+                    ${order.status === 'cancelled' ? `<button class="btn btn-sm btn-outline-danger" onclick="removeOrder('${order.orderId}')">Remove</button>` : ''}
                 </div>
             `;
             ordersContainer.appendChild(orderCard);
@@ -189,6 +228,21 @@ function cancelOrder(orderId) {
         loadOrders();
         showNotification('Order cancelled successfully!', 'success');
     }
+}
+
+function removeOrder(orderId) {
+    if (!confirm('Remove this cancelled order from your list?')) {
+        return;
+    }
+
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    const filtered = orders.filter(o => o.orderId !== orderId);
+    localStorage.setItem('orders', JSON.stringify(filtered));
+    userOrdersCache = userOrdersCache.filter(o => o.orderId !== orderId);
+
+    apiCall('/orders/' + orderId, 'DELETE');
+    applyOrderFilters();
+    showNotification('Order removed successfully!', 'success');
 }
 
 // Track Order (for tracking system)
